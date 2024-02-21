@@ -86,6 +86,16 @@ def turn_off_pixels(pixels):
         pixels.show()
         time.sleep(0.05)
 
+def pulsing_blue_effect(pixels, pulses=2):
+    for _ in range(pulses):
+        pixels.fill((0, 0, 255))
+        pixels.show()
+        time.sleep(0.5)  # Adjust the duration of each pulse as needed
+
+        pixels.fill((0, 0, 0))
+        pixels.show()
+        time.sleep(0.5)
+
 def read_rfid():
     i2c = busio.I2C(board.SCL, board.SDA)
     pn532 = PN532_I2C(i2c, address=0x24)
@@ -103,6 +113,9 @@ def read_rfid():
     print(f"Found PN532 with firmware version: {ver}.{rev}")
 
     pn532.SAM_configuration()
+
+    print("Pulsing blue lights to indicate readiness...")
+    pulsing_blue_effect(pixels)
 
     print("Waiting for an RFID card...")
 

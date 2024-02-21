@@ -87,22 +87,19 @@ def turn_off_pixels(pixels):
         pixels.show()
         time.sleep(0.05)
 
-def pulsing_blue_effect(pixels, pulses=2, duration=2):
+def pulsing_blue_effect(pixels, pulses=2, duration=1):
     num_steps = 50  # Number of steps for smooth transition
     sleep_duration = duration / num_steps
+    pixels.fill((0, 0, 255))
+    pixels.brightness = 255
+    pixels.show()
 
     for _ in range(pulses):
-        for step in range(num_steps):
-            brightness = int(127.5 + 127.5 * math.sin(step / num_steps * math.pi))
-            pixels.fill((0, 0, brightness))
-            pixels.show()
-            time.sleep(sleep_duration)
-
-        for step in reversed(range(num_steps)):
-            brightness = int(127.5 + 127.5 * math.sin(step / num_steps * math.pi))
-            pixels.fill((0, 0, brightness))
-            pixels.show()
-            time.sleep(sleep_duration)
+       brightness_transition(pixels, 0.05, duration)
+       time.sleep(sleep_duration)
+       brightness_transition(pixels, 0.75, duration)
+       time.sleep(sleep_duration)
+    brightness_transition(pixels, 0.05, duration)
 
     pixels.fill((0, 0, 0))  # Turn off pixels after pulsing
     pixels.show()

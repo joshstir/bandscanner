@@ -117,9 +117,9 @@ def pulsing_blue_thread(pixels):
 	pixels.show()
 	while not RFID_FOUND.is_set():
 		brightness_transition(pixels, 0.05, 1)
-		time.sleep(1/50)
+		time.sleep(1/100)
 		brightness_transition(pixels, 0.75, 1)
-		time.sleep(1/50)
+		time.sleep(1/100)
         #pulsing_blue_effect(pixels)
 	# Optionally, you can add a cleanup or final effect here
 	brightness_transition(pixels, 0.05, 1)

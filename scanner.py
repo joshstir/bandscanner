@@ -2,6 +2,7 @@ import time
 import board
 import busio
 import os
+import math
 from adafruit_pn532.i2c import PN532_I2C
 import neopixel
 
@@ -86,20 +87,32 @@ def turn_off_pixels(pixels):
         pixels.show()
         time.sleep(0.05)
 
-def pulsing_blue_effect(pixels, pulses=2):
-    for _ in range(pulses):
-        pixels.fill((0, 0, 255))
-        pixels.show()
-        time.sleep(0.5)  # Adjust the duration of each pulse as needed
+def pulsing_blue_effect(pixels, pulses=2, duration=2):
+    num_steps = 50  # Number of steps for smooth transition
+    sleep_duration = duration / num_steps
 
-        pixels.fill((0, 0, 0))
-        pixels.show()
-        time.sleep(0.5)
+    for _ in range(pulses):
+        for step in range(num_steps):
+            brightness = int(127.5 + 127.5 * math.sin(step / num_steps * math.pi))
+            pixels.fill((0, 0, brightness))
+            pixels.show()
+            time.sleep(sleep_duration)
+
+        for step in reversed(range(num_steps)):
+            brightness = int(127.5 + 127.5 * math.sin(step / num_steps * math.pi))
+            pixels.fill((0, 0, brightness))
+            pixels.show()
+            time.sleep(sleep_duration)
+
+    pixels.fill((0, 0, 0))  # Turn off pixels after pulsing
+    pixels.show()
 
 def read_rfid():
     i2c = busio.I2C(board.SCL, board.SDA)
-    pn532 = PN532_I2C(i2c, address=0x24)
+    
+    #pn532 = PN532_I2C(i2c, address=0x24)
     #pixels = neopixel.NeoPixel(board.D18, 10)  # Change D18 to the pin you're using
+    pn532 = None
 
     # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
     # For RGBW NeoPixels, simply change the ORDER to RGBW or GRBW.
@@ -108,6 +121,18 @@ def read_rfid():
     pixels = neopixel.NeoPixel(
        board.D18, 22, brightness=1, auto_write=False, pixel_order=ORDER
     )
+
+    while pn532 is None:
+        try:
+            pn532 = PN532_I2C(i2c, address=0x24)
+            ic, ver, rev, support = pn532.firmware_version
+            print(f"Found PN532 with firmware version: {ver}.{rev}")
+        except RuntimeError as e:
+            print(f"Error initializing PN532: {e}")
+            print("Retrying initialization...")
+            time.sleep(2)  
+
+    pn532.SAM_configuration()
 
     ic, ver, rev, support = pn532.firmware_version
     print(f"Found PN532 with firmware version: {ver}.{rev}")

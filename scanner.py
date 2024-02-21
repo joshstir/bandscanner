@@ -2,7 +2,6 @@ import time
 import board
 import busio
 import os
-import math
 import threading
 from adafruit_pn532.i2c import PN532_I2C
 import neopixel

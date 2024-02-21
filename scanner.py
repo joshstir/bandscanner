@@ -154,15 +154,12 @@ def read_rfid():
                pixels.fill((255,0,0))
             pixels.show()
             
-           # Increase brightness to 50% over 2 seconds
+           # Increase brightness to 100% over 1 seconds
             playSound()
             brightness_transition(pixels, 1, 1)
-            # Wait for a moment
-            #time.sleep(1)
-
+            
             # Fade off effect
-            print("fade out")
-            #brightness_transition(pixels, 0, 1) 
+            print("fade out")            
             turn_off_pixels(pixels)
 
             # Turn off all lights

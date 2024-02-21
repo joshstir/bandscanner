@@ -94,9 +94,9 @@ def pulsing_blue_effect(pixels, pulses=2, duration=2):
     
 	
     for _ in range(pulses):
-       brightness_transition(pixels, 0.0, 2)
+       brightness_transition(pixels, 0.2, 1)
        time.sleep(sleep_duration)
-       brightness_transition(pixels, 1.0, 2)
+       brightness_transition(pixels, 0.5, 1)
        time.sleep(sleep_duration)
 
     pixels.fill((0, 0, 0))  # Turn off pixels after pulsing

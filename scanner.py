@@ -107,6 +107,7 @@ def pulsing_blue_effect(pixels, pulses=2, duration=1):
 	brightness_transition(pixels, 0.05, duration)
 
 	pixels.fill((0, 0, 0))  # Turn off pixels after pulsing
+	pixels.brightness = 255
 	pixels.show()
 
 

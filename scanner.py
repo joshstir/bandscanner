@@ -96,21 +96,6 @@ def turn_off_pixels(pixels):
 		time.sleep(0.05)
 
 
-def pulsing_blue_effect(pixels, pulses=1, duration=1):
-	num_steps = 50  # Number of steps for smooth transition
-	sleep_duration = duration / num_steps
-	pixels.fill((0, 0, 255))
-	pixels.brightness = 255
-	pixels.show()
-
-	for _ in range(pulses):
-		brightness_transition(pixels, 0.05, duration)
-		time.sleep(sleep_duration)
-		brightness_transition(pixels, 0.75, duration)
-		time.sleep(sleep_duration)
-
-
-
 def pulsing_blue_thread(pixels):
 	pixels.fill((0, 0, 255))
 	pixels.brightness = 255
@@ -160,9 +145,6 @@ def read_rfid():
 			time.sleep(2)
 
 	pn532.SAM_configuration()
-
-	#print("Pulsing blue lights to indicate readiness...")
-	#pulsing_blue_effect(pixels)
 
 	print("Waiting for an RFID card...")
 

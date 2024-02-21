@@ -16,7 +16,7 @@ VALID_UID = "04558c92ec5b80"
 AUDIO_ENABLED = True
 
 # Global flag to indicate whether the RFID board is found
-RFID_FOUND = False
+RFID_FOUND = threading.Event()
 
 
 def initialize_audio():
@@ -112,18 +112,22 @@ def pulsing_blue_effect(pixels, pulses=1, duration=1):
 
 
 def pulsing_blue_thread(pixels):
-   while not RFID_FOUND:
-        pulsing_blue_effect(pixels)
-   # Optionally, you can add a cleanup or final effect here
-   brightness_transition(pixels, 0.05, 1)
+	while not RFID_FOUND.is_set():
+		brightness_transition(pixels, 0.05, 1)
+		time.sleep(1/50)
+		brightness_transition(pixels, 0.75, 1)
+		time.sleep(1/50)
+        #pulsing_blue_effect(pixels)
+	# Optionally, you can add a cleanup or final effect here
+	brightness_transition(pixels, 0.05, 1)
 
-   pixels.brightness = 255      
-   pixels.fill((255,0,0))
-   pixels.show()
-   time.sleep(0.5)
+	pixels.brightness = 255      
+	pixels.fill((255,0,0))
+	pixels.show()
+	time.sleep(0.5)
 
-   pixels.fill((0, 0, 0))  # Turn off pixels after pulsing   
-   pixels.show()
+	pixels.fill((0, 0, 0))  # Turn off pixels after pulsing   
+	pixels.show()
 
 
 def read_rfid():
@@ -148,7 +152,7 @@ def read_rfid():
 			ic, ver, rev, support = pn532.firmware_version
 			print(f"Found PN532 with firmware version: {ver}.{rev}")
 			# Set the flag to stop the pulsing thread
-			RFID_FOUND = True
+			RFID_FOUND.set()
 			pulsing_thread.join()  # Wait for the pulsing thread to finish
 		except RuntimeError as e:
 			print(f"Error initializing PN532: {e}")

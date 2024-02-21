@@ -2,7 +2,7 @@ import time
 import board
 import busio
 import os
-import math
+import threading
 from adafruit_pn532.i2c import PN532_I2C
 import neopixel
 
@@ -13,6 +13,9 @@ import pygame._sdl2.audio as sdl2_audio
 
 VALID_UID = "04558c92ec5b80"
 AUDIO_ENABLED = True
+
+# Global flag to indicate whether the RFID board is found
+RFID_FOUND = threading.Event()
 
 
 def initialize_audio():
@@ -92,22 +95,22 @@ def turn_off_pixels(pixels):
 		time.sleep(0.05)
 
 
-def pulsing_blue_effect(pixels, pulses=2, duration=1):
-	num_steps = 50  # Number of steps for smooth transition
-	sleep_duration = duration / num_steps
+def pulsing_blue_thread(pixels):
 	pixels.fill((0, 0, 255))
 	pixels.brightness = 255
 	pixels.show()
+	while not RFID_FOUND.is_set():
+		brightness_transition(pixels, 0.05, 1)
+		time.sleep(1/100)
+		brightness_transition(pixels, 0.75, 1)
+		time.sleep(1/100)        
 
-	for _ in range(pulses):
-		brightness_transition(pixels, 0.05, duration)
-		time.sleep(sleep_duration)
-		brightness_transition(pixels, 0.75, duration)
-		time.sleep(sleep_duration)
-	brightness_transition(pixels, 0.05, duration)
+	pixels.brightness = 255      
+	pixels.fill((0,255,0))
+	pixels.show()
+	time.sleep(1)
 
-	pixels.fill((0, 0, 0))  # Turn off pixels after pulsing
-	pixels.brightness = 255
+	pixels.fill((0, 0, 0))  # Turn off pixels after pulsing   
 	pixels.show()
 
 
@@ -124,20 +127,23 @@ def read_rfid():
 		board.D18, 22, brightness=1, auto_write=False, pixel_order=ORDER
 	)
 
+	pulsing_thread = threading.Thread(target=pulsing_blue_thread, args=(pixels,))
+	pulsing_thread.start()
+
 	while pn532 is None:
 		try:
 			pn532 = PN532_I2C(i2c, address=0x24)
 			ic, ver, rev, support = pn532.firmware_version
 			print(f"Found PN532 with firmware version: {ver}.{rev}")
+			# Set the flag to stop the pulsing thread
+			RFID_FOUND.set()
+			pulsing_thread.join()  # Wait for the pulsing thread to finish
 		except RuntimeError as e:
 			print(f"Error initializing PN532: {e}")
 			print("Retrying initialization...")
 			time.sleep(2)
 
 	pn532.SAM_configuration()
-
-	print("Pulsing blue lights to indicate readiness...")
-	pulsing_blue_effect(pixels)
 
 	print("Waiting for an RFID card...")
 

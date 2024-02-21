@@ -119,10 +119,7 @@ def pulsing_blue_thread(pixels):
 		brightness_transition(pixels, 0.05, 1)
 		time.sleep(1/100)
 		brightness_transition(pixels, 0.75, 1)
-		time.sleep(1/100)
-        #pulsing_blue_effect(pixels)
-	# Optionally, you can add a cleanup or final effect here
-	brightness_transition(pixels, 0.05, 1)
+		time.sleep(1/100)        
 
 	pixels.brightness = 255      
 	pixels.fill((0,255,0))

@@ -3,6 +3,7 @@ import board
 import busio
 import os
 import math
+import threading
 from adafruit_pn532.i2c import PN532_I2C
 import neopixel
 
@@ -13,6 +14,9 @@ import pygame._sdl2.audio as sdl2_audio
 
 VALID_UID = "04558c92ec5b80"
 AUDIO_ENABLED = True
+
+# Global flag to indicate whether the RFID board is found
+RFID_FOUND = False
 
 
 def initialize_audio():
@@ -92,7 +96,7 @@ def turn_off_pixels(pixels):
 		time.sleep(0.05)
 
 
-def pulsing_blue_effect(pixels, pulses=2, duration=1):
+def pulsing_blue_effect(pixels, pulses=1, duration=1):
 	num_steps = 50  # Number of steps for smooth transition
 	sleep_duration = duration / num_steps
 	pixels.fill((0, 0, 255))
@@ -104,11 +108,22 @@ def pulsing_blue_effect(pixels, pulses=2, duration=1):
 		time.sleep(sleep_duration)
 		brightness_transition(pixels, 0.75, duration)
 		time.sleep(sleep_duration)
-	brightness_transition(pixels, 0.05, duration)
 
-	pixels.fill((0, 0, 0))  # Turn off pixels after pulsing
-	pixels.brightness = 255
-	pixels.show()
+
+
+def pulsing_blue_thread(pixels):
+   while not RFID_FOUND:
+        pulsing_blue_effect(pixels)
+   # Optionally, you can add a cleanup or final effect here
+   brightness_transition(pixels, 0.05, 1)
+
+   pixels.brightness = 255      
+   pixels.fill((255,0,0))
+   pixels.show()
+   time.sleep(0.5)
+
+   pixels.fill((0, 0, 0))  # Turn off pixels after pulsing   
+   pixels.show()
 
 
 def read_rfid():
@@ -124,11 +139,17 @@ def read_rfid():
 		board.D18, 22, brightness=1, auto_write=False, pixel_order=ORDER
 	)
 
+	pulsing_thread = threading.Thread(target=pulsing_blue_thread, args=(pixels,))
+	pulsing_thread.start()
+
 	while pn532 is None:
 		try:
 			pn532 = PN532_I2C(i2c, address=0x24)
 			ic, ver, rev, support = pn532.firmware_version
 			print(f"Found PN532 with firmware version: {ver}.{rev}")
+			# Set the flag to stop the pulsing thread
+			RFID_FOUND = True
+			pulsing_thread.join()  # Wait for the pulsing thread to finish
 		except RuntimeError as e:
 			print(f"Error initializing PN532: {e}")
 			print("Retrying initialization...")

@@ -161,8 +161,8 @@ def read_rfid():
 
 	pn532.SAM_configuration()
 
-	print("Pulsing blue lights to indicate readiness...")
-	pulsing_blue_effect(pixels)
+	#print("Pulsing blue lights to indicate readiness...")
+	#pulsing_blue_effect(pixels)
 
 	print("Waiting for an RFID card...")
 

@@ -107,8 +107,6 @@ def pulsing_blue_effect(pixels, pulses=2, duration=1):
 def read_rfid():
     i2c = busio.I2C(board.SCL, board.SDA)
     
-    #pn532 = PN532_I2C(i2c, address=0x24)
-    #pixels = neopixel.NeoPixel(board.D18, 10)  # Change D18 to the pin you're using
     pn532 = None
 
     # The order of the pixel colors - RGB or GRB. Some NeoPixels have red and green reversed!
@@ -128,11 +126,6 @@ def read_rfid():
             print(f"Error initializing PN532: {e}")
             print("Retrying initialization...")
             time.sleep(2)  
-
-    pn532.SAM_configuration()
-
-    ic, ver, rev, support = pn532.firmware_version
-    print(f"Found PN532 with firmware version: {ver}.{rev}")
 
     pn532.SAM_configuration()
 

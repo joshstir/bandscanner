@@ -122,9 +122,9 @@ def pulsing_blue_thread(pixels):
 	brightness_transition(pixels, 0.05, 1)
 
 	pixels.brightness = 255      
-	pixels.fill((255,0,0))
+	pixels.fill((0,255,0))
 	pixels.show()
-	time.sleep(0.5)
+	time.sleep(1)
 
 	pixels.fill((0, 0, 0))  # Turn off pixels after pulsing   
 	pixels.show()
